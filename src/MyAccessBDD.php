@@ -65,6 +65,12 @@ class MyAccessBDD extends AccessBDD {
         switch($table){
             case "" :
                 // return $this->uneFonction(parametres);
+            case "livre":
+                return $this->insertTupleLivre($champs);
+            case "dvd":
+               return $this->insertTupleDvd($champs);
+            case "revue":
+               return $this->insertTupleRevue($champs);
             default:                    
                 // cas général
                 return $this->insertOneTupleOneTable($table, $champs);	
@@ -83,6 +89,12 @@ class MyAccessBDD extends AccessBDD {
         switch($table){
             case "" :
                 // return $this->uneFonction(parametres);
+            case "livre":
+                return $this->updateTupleLivre($champs);
+            case "dvd":
+                return $this->updateTupleDvd($champs);
+            case "revue":
+                return $this->updateTupleRevue($champs);
             default:                    
                 // cas général
                 return $this->updateOneTupleOneTable($table, $id, $champs);
@@ -100,7 +112,13 @@ class MyAccessBDD extends AccessBDD {
         switch($table){
             case "" :
                 // return $this->uneFonction(parametres);
-            default:                    
+            case "livre":
+                return $this->deleteTuplesDocument($table, $champs);
+            case "dvd":
+                return $this->deleteTuplesDocument($table, $champs);
+            case "revue":
+                return $this->deleteTuplesDocument($table, $champs);
+            default:
                 // cas général
                 return $this->deleteTuplesOneTable($table, $champs);	
         }
@@ -155,6 +173,101 @@ class MyAccessBDD extends AccessBDD {
         $requete .= ");";
         return $this->conn->updateBDD($requete, $champs);
     }
+    
+    private function insertTupleLivre(?array $champs) : ?int{
+        $doc = [
+            'id' => $champs['Id'],
+            'titre' => $champs['Titre'] ?? null,
+            'image' => $champs['Image'] ?? null,
+            'idRayon' => $champs['IdRayon'] ?? null,
+            'idPublic' => $champs['IdPublic'] ?? null,
+            'idGenre' => $champs['IdGenre'] ?? null
+        ];
+        $livre = [
+            'id' => $champs['Id'],
+            'ISBN' => $champs['ISBN'] ?? null,
+            'auteur' => $champs['Auteur'] ?? null,
+            'collection' => $champs['Collection'] ?? null
+        ];
+        $doc = array_filter($doc, fn($v) => $v !== null);
+        $livre = array_filter($livre, fn($v) => $v !== null);
+        
+        try {
+            $this->conn->beginTransaction();
+            $nb = 0;
+            $nb += $this->insertOneTupleOneTable("document", $doc);
+            $nb += $this->insertOneTupleOneTable("livres_dvd", ['id' => $champs['Id']]);
+            $nb += $this->insertOneTupleOneTable("livre", $livre);
+            $this->conn->commit();
+            return $nb;
+        } catch (Exception $ex) {
+            $this->conn->rollBack();
+            return null;
+        }
+    }
+    
+    private function insertTupleDvd(?array $champs) : ?int{
+        $doc = [
+            'id' => $champs['Id'],
+            'titre' => $champs['Titre'] ?? null,
+            'image' => $champs['Image'] ?? null,
+            'idRayon' => $champs['IdRayon'] ?? null,
+            'idPublic' => $champs['IdPublic'] ?? null,
+            'idGenre' => $champs['IdGenre'] ?? null
+        ];
+        $dvd = [
+            'id' => $champs['Id'],
+            'synopsis' => $champs['Synopsis'] ?? null,
+            'realisateur' => $champs['Realisateur'] ?? null,
+            'duree' => $champs['Duree'] ?? null
+        ];
+        $doc = array_filter($doc, fn($v) => $v !== null);
+        $dvd = array_filter($dvd, fn($v) => $v !== null);
+        
+        try {
+            $this->conn->beginTransaction();
+            $nb = 0;
+            $nb += $this->insertOneTupleOneTable("document", $doc);
+            $nb += $this->insertOneTupleOneTable("livres_dvd", ['id' => $champs['Id']]);
+            $nb += $this->insertOneTupleOneTable("dvd", $dvd);
+            $this->conn->commit();
+            return $nb;
+        } catch (Exception $ex) {
+            $this->conn->rollBack();
+            return null;
+        }
+    }
+    
+    private function insertTupleRevue(?array $champs) : ?int{
+        $doc = [
+            'id' => $champs['Id'],
+            'titre' => $champs['Titre'] ?? null,
+            'image' => $champs['Image'] ?? null,
+            'idRayon' => $champs['IdRayon'] ?? null,
+            'idPublic' => $champs['IdPublic'] ?? null,
+            'idGenre' => $champs['IdGenre'] ?? null
+        ];
+        $revue = [
+            'id' => $champs['Id'],
+            'periodicite' => $champs['Periodicite'] ?? null,
+            'delaiMiseADispo' => $champs['DelaiMiseADispo'] ?? null
+        ];
+        $doc = array_filter($doc, fn($v) => $v !== null);
+        $revue = array_filter($revue, fn($v) => $v !== null);
+        
+        try {
+            $this->conn->beginTransaction();
+            $nb = 0;
+            $nb += $this->insertOneTupleOneTable("document", $doc);
+            $nb += $this->insertOneTupleOneTable("revue", $revue);
+            $this->conn->commit();
+            return $nb;
+        } catch (Exception $ex) {
+            $this->conn->rollBack();
+            return null;
+        }
+    }
+
 
     /**
      * demande de modification (update) d'un tuple dans une table
@@ -183,6 +296,119 @@ class MyAccessBDD extends AccessBDD {
     }
     
     /**
+     * Crée une transaction et appelle updateOneTupleOneTable pour la table livre et la table "document". En cas de problème, rollback, sinon commit
+     * @param string $table
+     * @param string|null $id
+     * @param array|null $champs
+     * @return int|null nombre de lignes modifiées
+     */
+    private function updateTupleLivre(?array $champs) : ?int {
+        $doc = [
+            'id' => $champs['Id'],
+            'titre' => $champs['Titre'] ?? null,
+            'image' => $champs['Image'] ?? null,
+            'idRayon' => $champs['IdRayon'] ?? null,
+            'idPublic' => $champs['IdPublic'] ?? null,
+            'idGenre' => $champs['IdGenre'] ?? null
+        ];
+        $livre = [
+            'id' => $champs['Id'],
+            'ISBN' => $champs['ISBN'] ?? null,
+            'auteur' => $champs['Auteur'] ?? null,
+            'collection' => $champs['Collection'] ?? null
+        ];
+        $doc = array_filter($doc, fn($v) => $v !== null);
+        $livre = array_filter($livre, fn($v) => $v !== null);
+        
+        try {
+            $this->conn->beginTransaction();
+            $nb = 0;
+            $nb += $this->updateOneTupleOneTable("document", $champs['Id'], $doc);
+            $nb += $this->updateOneTupleOneTable("livre", $champs['Id'], $livre);
+            $this->conn->commit();
+            return $nb;
+        } catch (Exception $ex) {
+            $this->conn->rollBack();
+            return null;
+        }
+    }
+    
+    /**
+     * Crée une transaction et appelle updateOneTupleOneTable pour la table dvd et la table "document". En cas de problème, rollback, sinon commit
+     * @param string $table
+     * @param string|null $id
+     * @param array|null $champs
+     * @return int|null nombre de lignes modifiées
+     */
+    private function updateTupleDvd(?array $champs) : ?int {
+        $doc = [
+            'id' => $champs['Id'],
+            'titre' => $champs['Titre'] ?? null,
+            'image' => $champs['Image'] ?? null,
+            'idRayon' => $champs['IdRayon'] ?? null,
+            'idPublic' => $champs['IdPublic'] ?? null,
+            'idGenre' => $champs['IdGenre'] ?? null
+        ];
+        $dvd = [
+            'id' => $champs['Id'],
+            'synopsis' => $champs['Synopsis'] ?? null,
+            'realisateur' => $champs['Realisateur'] ?? null,
+            'duree' => $champs['Duree'] ?? null
+        ];
+        $doc = array_filter($doc, fn($v) => $v !== null);
+        $dvd = array_filter($dvd, fn($v) => $v !== null);
+        
+        try {
+            $this->conn->beginTransaction();
+            $nb = 0;
+            $nb += $this->updateOneTupleOneTable("document", $champs['Id'], $doc);
+            $nb += $this->updateOneTupleOneTable("dvd", $champs['Id'], $dvd);
+            $this->conn->commit();
+            return $nb;
+        } catch (Exception $ex) {
+            $this->conn->rollBack();
+            return null;
+        }
+    }
+    
+        /**
+     * Crée une transaction et appelle updateOneTupleOneTable pour la table revue et la table "document". En cas de problème, rollback, sinon commit
+     * @param string $table
+     * @param string|null $id
+     * @param array|null $champs
+     * @return int|null nombre de lignes modifiées
+     */
+    private function updateTupleRevue(?array $champs) : ?int {
+        $doc = [
+            'id' => $champs['Id'],
+            'titre' => $champs['Titre'] ?? null,
+            'image' => $champs['Image'] ?? null,
+            'idRayon' => $champs['IdRayon'] ?? null,
+            'idPublic' => $champs['IdPublic'] ?? null,
+            'idGenre' => $champs['IdGenre'] ?? null
+        ];
+        $revue = [
+            'id' => $champs['Id'],
+            'periodicite' => $champs['Periodicite'] ?? null,
+            'delaiMiseADispo' => $champs['DelaiMiseADispo'] ?? null
+        ];
+        $doc = array_filter($doc, fn($v) => $v !== null);
+        $revue = array_filter($revue, fn($v) => $v !== null);
+        
+        try {
+            $this->conn->beginTransaction();
+            $nb = 0;
+            $nb += $this->updateOneTupleOneTable("document", $champs['Id'], $doc);
+            $nb += $this->updateOneTupleOneTable("revue", $champs['Id'], $revue);
+            $this->conn->commit();
+            return $nb;
+        } catch (Exception $ex) {
+            $this->conn->rollBack();
+            return null;
+        }
+    }
+    
+    /**
      * demande de suppression (delete) d'un ou plusieurs tuples dans une table
      * @param string $table
      * @param array|null $champs
@@ -201,7 +427,35 @@ class MyAccessBDD extends AccessBDD {
         $requete = substr($requete, 0, strlen($requete)-5);   
         return $this->conn->updateBDD($requete, $champs);	        
     }
- 
+    
+    /**
+     * Crée une transaction et appelle deleteTuplesOneTable pour supprimer des tuples en suivant les propriétés ACID
+     * En fonction de l'id, supprime depuis la table indiqué, depuis 'livres_dvd" si nécessaire et depuis "document"
+     * Ne fonctionne que pour les tables DVD et livre. Ne pas utiliser dans une autre contexte.
+     * @param string $table
+     * @param array|null $champs
+     * @return int|null
+     */
+    private function deleteTuplesDocument(string $table, ?array $champs) : ?int{
+        if(empty($champs)){
+            return null;
+        }
+        try {
+            $this->conn->beginTransaction();
+            $nb = 0;
+            $nb += $this->deleteTuplesOneTable($table, $champs);
+            if($table == "livre" || "dvd"){
+                $nb += $this->deleteTuplesOneTable('livres_dvd', $champs);
+            }
+            $nb += $this->deleteTuplesOneTable('document', $champs);
+            $this->conn->commit();
+            return $nb;
+        } catch (Exception $ex) {
+            $this->conn->rollBack();
+            return null;
+        }
+    }
+    
     /**
      * récupère toutes les lignes d'une table simple (qui contient juste id et libelle)
      * @param string $table

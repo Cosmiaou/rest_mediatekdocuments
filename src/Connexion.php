@@ -36,6 +36,18 @@ class Connexion {
         }
     }
     
+    public function beginTransaction() {
+        return $this->conn->beginTransaction();
+    }
+    
+    public function commit() {
+        return $this->conn->commit();
+    }
+    
+    public function rollBack() {
+        return $this->conn->rollBack();
+    }
+    
     /**
      * méthode statique de création de l'instance unique
      * @param string $login
