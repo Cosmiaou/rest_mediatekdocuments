@@ -47,10 +47,13 @@ class MyAccessBDD extends AccessBDD {
             case "commande_livre":
             case "commande_dvd":
                 return $this->selectCommandeDocuments($champs);
+            case "utilisateur_check":
+                return $this->checkUtilisateur($champs);
             case "genre" :
             case "public" :
             case "suivi":
             case "rayon" :
+            case "service":
             case "etat" :
                 // select portant sur une table contenant juste id et libelle
                 return $this->selectTableSimple($table);
@@ -652,4 +655,20 @@ class MyAccessBDD extends AccessBDD {
         }
         return $nb;
     }
+    
+    public function checkUtilisateur($champs) : ?array
+    {
+        if(empty($champs)){ return null; }
+        
+        $champsCorrects = [
+            'nom' => $champs['Nom'],
+            'password' => $champs['Password'] ?? null
+        ];
+        
+        $requete = "SELECT u.idService FROM utilisateur u ";
+        $requete .= "WHERE u.nom = :nom AND u.password = :password ";
+        $requete .= "LIMIT 1;";
+        return $this->conn->queryBDD($requete, $champsCorrects);
+    }
+    
 }
