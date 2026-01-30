@@ -36,14 +36,26 @@ class Connexion {
         }
     }
     
+    /**
+     * Permet de commencer une transaction MySQL
+     * @return type
+     */
     public function beginTransaction() {
         return $this->conn->beginTransaction();
     }
     
+    /**
+     * Permet d'exécuter la transaction MySQL
+     * @return type
+     */
     public function commit() {
         return $this->conn->commit();
     }
     
+    /**
+     * Annule la transaction en cours et retourne à l'état précédent
+     * @return type
+     */
     public function rollBack() {
         return $this->conn->rollBack();
     }

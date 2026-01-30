@@ -74,8 +74,6 @@ class MyAccessBDD extends AccessBDD {
      */	
     protected function traitementInsert(string $table, ?array $champs) : ?int{
         switch($table){
-            case "" :
-                // return $this->uneFonction(parametres);
             case "livre":
                 return $this->insertTupleLivre($champs);
             case "dvd":
@@ -86,6 +84,8 @@ class MyAccessBDD extends AccessBDD {
                 return $this->insertCommandeDocuments($champs);
             case "abonnement":
                 return $this->insertAbonnement($champs);
+            case "" :
+                // return $this->uneFonction(parametres);
             default:
                 // cas général
                 return $this->insertOneTupleOneTable($table, $champs);	
@@ -102,8 +102,6 @@ class MyAccessBDD extends AccessBDD {
      */	
     protected function traitementUpdate(string $table, ?string $id, ?array $champs) : ?int{
         switch($table){
-            case "" :
-                // return $this->uneFonction(parametres);
             case "livre":
                 return $this->updateTupleLivre($champs);
             case "dvd":
@@ -112,6 +110,8 @@ class MyAccessBDD extends AccessBDD {
                 return $this->updateTupleRevue($champs);
             case "commandedocument":
                 return $this->updateCommandeDocument($id, $champs);
+            case "" :
+                // return $this->uneFonction(parametres);
             default:                    
                 // cas général
                 return $this->updateOneTupleOneTable($table, $id, $champs);
@@ -127,14 +127,14 @@ class MyAccessBDD extends AccessBDD {
      */	
     protected function traitementDelete(string $table, ?array $champs) : ?int{
         switch($table){
-            case "" :
-                // return $this->uneFonction(parametres);
             case "livre":
                 return $this->deleteTuplesDocument($table, $champs);
             case "dvd":
                 return $this->deleteTuplesDocument($table, $champs);
             case "revue":
                 return $this->deleteTuplesDocument($table, $champs);
+            case "" :
+                // return $this->uneFonction(parametres);
             default:
                 // cas général
                 return $this->deleteTuplesOneTable($table, $champs);	
@@ -191,6 +191,12 @@ class MyAccessBDD extends AccessBDD {
         return $this->conn->updateBDD($requete, $champs);
     }
     
+    /**
+     * Insère un tuple dans document et un dans livre.
+     * En cas de problème, rollback, sinon commit
+     * @param array|null $champs
+     * @return int|null nombre de tuples ajoutés (0 ou 1) ou null si erreur
+     */
     private function insertTupleLivre(?array $champs) : ?int{
         $doc = [
             'id' => $champs['Id'],
@@ -223,6 +229,12 @@ class MyAccessBDD extends AccessBDD {
         }
     }
     
+    /**
+     * Insère un tuple dans document et un dans dvd.
+     * En cas de problème, rollback, sinon commit
+     * @param array|null $champs
+     * @return int|null nombre de tuples ajoutés (0 ou 1) ou null si erreur
+     */
     private function insertTupleDvd(?array $champs) : ?int{
         $doc = [
             'id' => $champs['Id'],
@@ -255,6 +267,12 @@ class MyAccessBDD extends AccessBDD {
         }
     }
     
+    /**
+     * Insère un tuple dans document et un dans revue.
+     * En cas de problème, rollback, sinon commit
+     * @param array|null $champs
+     * @return int|null nombre de tuples ajoutés (0 ou 1) ou null si erreur
+     */
     private function insertTupleRevue(?array $champs) : ?int{
         $doc = [
             'id' => $champs['Id'],
@@ -312,16 +330,22 @@ class MyAccessBDD extends AccessBDD {
         return $this->conn->updateBDD($requete, $champs);	        
     }
     
+    /**
+     * Met à jour l'idSuivi d'une commande de document
+     * @param string|null $id
+     * @param array|null $champs
+     * @return int|null nombre de tuples ajoutés (0 ou 1) ou null si erreur
+     */
     private function updateCommandeDocument(?string $id, ?array $champs) : ?int{
         $param = [
             'idSuivi' => $champs['IdSuivi']
         ];
-        
         return $this->updateOneTupleOneTable("commandedocument", $id, $param);
     }
     
     /**
-     * Crée une transaction et appelle updateOneTupleOneTable pour la table livre et la table "document". En cas de problème, rollback, sinon commit
+     * Crée une transaction et appelle updateOneTupleOneTable pour la table livre et la table "document".
+     * En cas de problème, rollback, sinon commit
      * @param string $table
      * @param string|null $id
      * @param array|null $champs
@@ -359,7 +383,8 @@ class MyAccessBDD extends AccessBDD {
     }
     
     /**
-     * Crée une transaction et appelle updateOneTupleOneTable pour la table dvd et la table "document". En cas de problème, rollback, sinon commit
+     * Crée une transaction et appelle updateOneTupleOneTable pour la table dvd et la table "document".
+     * En cas de problème, rollback, sinon commit
      * @param string $table
      * @param string|null $id
      * @param array|null $champs
@@ -397,7 +422,8 @@ class MyAccessBDD extends AccessBDD {
     }
     
         /**
-     * Crée une transaction et appelle updateOneTupleOneTable pour la table revue et la table "document". En cas de problème, rollback, sinon commit
+     * Crée une transaction et appelle updateOneTupleOneTable pour la table revue et la table "document".
+     * En cas de problème, rollback, sinon commit
      * @param string $table
      * @param string|null $id
      * @param array|null $champs
@@ -493,6 +519,7 @@ class MyAccessBDD extends AccessBDD {
     
     /**
      * récupère toutes les lignes de la table Livre et les tables associées
+     * Champs peut contenir l'id d'un livre, dans ce cas seulemnt lui sera retournée
      * @return array|null
      */
     private function selectAllLivres(?array $champs = null) : ?array{
@@ -511,6 +538,7 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * récupère toutes les lignes de la table DVD et les tables associées
+     * Champs peut contenir l'id d'un dvd, dans ce cas seulemnt lui sera retournée
      * @return array|null
      */
     private function selectAllDvd(?array $champs = null) : ?array{
@@ -529,6 +557,7 @@ class MyAccessBDD extends AccessBDD {
 
     /**
      * récupère toutes les lignes de la table Revue et les tables associées
+     * Champs peut contenir l'id d'une revue, dans ce cas seulemnt elle sera retournée
      * @return array|null
      */
     private function selectAllRevues(?array $champs = null) : ?array{
@@ -578,6 +607,14 @@ class MyAccessBDD extends AccessBDD {
         return $this->conn->queryBDD($requete, $champs);
     }
     
+    /**
+     * Retourne les informations d'un abonnement
+     * Si $demandeExpiration est VRAI, retourne uniquement ceux dont la date d'expiration est dans moins de 30 jours.
+     * S'il est faux, retourne uniquement ceux dont l'Id de la revue associée corresponds à celui indiqué.
+     * @param array|null $champs
+     * @param bool $demandeExpiration
+     * @return type
+     */
     private function selectCommandeRevue(?array $champs, bool $demandeExpiration)
     {
         $requete = "SELECT a.id, a.dateFinAbonnement, a.idRevue, c.dateCommande, c.montant ";
@@ -594,6 +631,7 @@ class MyAccessBDD extends AccessBDD {
     
     /**
      * Insère des éléments dans les table commande et commandedocument
+     * Doit recevoir l'id, la date de commande, le montant, le nombre d'exemplaire, l'idSuivi et l'id du document
      * @param array|null $champs
      * @return int|null
      */
@@ -627,6 +665,12 @@ class MyAccessBDD extends AccessBDD {
         return $nb;
     }
     
+    /**
+     * Insère un tuple dans commande et dans abonnement.
+     * Doit recevoir l'id, la date de commande, le montant, la date de fin et l'id de la revue associée.
+     * @param array|null $champs
+     * @return int|null
+     */
     private function insertAbonnement(?array $champs) : ?int
     {
         if(empty($champs)){ return null; }
@@ -656,6 +700,11 @@ class MyAccessBDD extends AccessBDD {
         return $nb;
     }
     
+    /**
+     * Reçoit le nom et le mot de passe d'un compte. Si un compte correspond, retourne son idService
+     * @param type $champs
+     * @return array|null 
+     */
     public function checkUtilisateur($champs) : ?array
     {
         if(empty($champs)){ return null; }
