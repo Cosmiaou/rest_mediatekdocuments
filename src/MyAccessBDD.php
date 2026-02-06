@@ -49,6 +49,8 @@ class MyAccessBDD extends AccessBDD {
                 return $this->selectCommandeDocuments($champs);
             case "utilisateur_check":
                 return $this->checkUtilisateur($champs);
+            case "utilisateur":
+                return null;
             case "genre" :
             case "public" :
             case "suivi":

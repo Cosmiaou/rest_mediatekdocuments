@@ -1,4 +1,6 @@
 RewriteEngine on
+RewriteCond %{HTTP:Authorization} ^(.+)$
+RewriteRule ^(.*)$ - [E=HTTP_AUTHORIZATION:%1]
 
 RewriteRule ^$ - [R=400,L]
 RewriteCond %{REQUEST_METHOD} =GET
