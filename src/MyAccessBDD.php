@@ -39,7 +39,7 @@ class MyAccessBDD extends AccessBDD {
             case "revue" :
                 return $this->selectAllRevues($champs);
             case "exemplaire" :
-                return $this->selectExemplairesRevue($champs);
+                return $this->selectExemplairesDocuments($champs);
             case "commande_revue":
                 return $this->selectCommandeRevue($champs, false);
             case "abonnements":
@@ -581,7 +581,7 @@ class MyAccessBDD extends AccessBDD {
      * @param array|null $champs 
      * @return array|null
      */
-    private function selectExemplairesRevue(?array $champs) : ?array{
+    private function selectExemplairesDocuments(?array $champs) : ?array{
         if(empty($champs)){
             return null;
         }
